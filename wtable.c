@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "table.h"
+#include "wtable.h"
 
 #define TABLE_DEFAULT_CAPACITY  (1 << 4)
 #define TABLE_DEFAULT_LODER     0.75f
@@ -25,15 +25,15 @@ typedef struct avl_tree_node {
     struct avl_tree_node *right;
 } avl_tree_node;
 
-typedef struct table {
+typedef struct wtable {
     avl_tree_node **avl_array;
     size_t capacity;
     size_t size;
 } table;
 
-void table_push_entry(table *table, table_entry *entry);
+void table_push_entry(wtable *table, table_entry *entry);
 
-void table_resize(table *table);
+void table_resize(wtable *table);
 
 unsigned int table_hash(char *key);
 
@@ -47,8 +47,8 @@ table_entry *avl_get_node(avl_tree_node *node, unsigned int key);
 
 void avl_free(avl_tree_node *node);
 
-table *new_table() {
-    table *new_table = (table *) malloc(sizeof(table));
+wtable *new_table() {
+    wtable *new_table = (wtable *) malloc(sizeof(wtable));
     new_table->capacity = TABLE_DEFAULT_CAPACITY;
     new_table->size = 0;
     new_table->avl_array = (avl_tree_node **) malloc(sizeof(avl_tree_node *) * new_table->capacity);
@@ -57,11 +57,11 @@ table *new_table() {
     return new_table;
 }
 
-size_t table_size(table *table) {
+size_t table_size(wtable *table) {
     return table->size;
 }
 
-int table_contains(table *table, char *key) {
+int table_contains(wtable *table, char *key) {
     unsigned int key_hash = table_hash(key) & (table->capacity - 1);
     if (table->avl_array[key_hash] == NULL)
         return 0;
@@ -74,7 +74,7 @@ int table_contains(table *table, char *key) {
     return 1;
 }
 
-void table_push(table *table, char *key, void *value) {
+void table_push(wtable *table, char *key, void *value) {
     ++table->size;
     if (table->size >= (size_t) ((float) table->capacity * TABLE_DEFAULT_LODER))
         table_resize(table);
@@ -88,7 +88,7 @@ void table_push(table *table, char *key, void *value) {
     table_push_entry(table, new_entry);
 }
 
-void *table_get(table *table, char *key) {
+void *table_get(wtable *table, char *key) {
     unsigned int key_hash = table_hash(key) & (table->capacity - 1);
     if (table->avl_array[key_hash] == NULL)
         return NULL;
@@ -100,7 +100,7 @@ void *table_get(table *table, char *key) {
     return entry->value;
 }
 
-void *table_remove(table *table, char *key) {
+void *table_remove(wtable *table, char *key) {
     --table->size;
     unsigned int key_hash = table_hash(key) & (table->capacity - 1);
     if (table->avl_array[key_hash] == NULL)
@@ -144,7 +144,7 @@ void table_keys_order(char **keys, avl_tree_node *node) {
     }
 }
 
-char **table_keys(table *table) {
+char **table_keys(wtable *table) {
     char **keys = (char **) malloc(sizeof(char *) * table->size);
     table_keys_index = 0;
     for (size_t i = 0; i < table->capacity; ++i)
@@ -162,7 +162,7 @@ void table_values_order(void **values, avl_tree_node *node) {
     }
 }
 
-void **table_values(table *table) {
+void **table_values(wtable *table) {
     void **values = (void **) malloc(sizeof(void *) * table->size);
     table_values_index = 0;
     for (size_t i = 0; i < table->capacity; ++i)
@@ -170,13 +170,13 @@ void **table_values(table *table) {
     return values;
 }
 
-void table_free(table *table) {
+void table_free(wtable *table) {
     for (size_t i = 0; i < table->capacity; ++i)
         avl_free(table->avl_array[i]);
     free(table);
 }
 
-void table_avl_copy(table *table, avl_tree_node *node) {
+void table_avl_copy(wtable *table, avl_tree_node *node) {
     if (node != NULL) {
         table_push_entry(table, node->entry);
         table_avl_copy(table, node->left);
@@ -186,7 +186,7 @@ void table_avl_copy(table *table, avl_tree_node *node) {
     }
 }
 
-void table_push_entry(table *table, table_entry *entry) {
+void table_push_entry(wtable *table, table_entry *entry) {
     ++table->size;
     if (table->size >= (size_t) ((float) table->capacity * TABLE_DEFAULT_LODER))
         table_resize(table);
@@ -226,7 +226,7 @@ void table_push_entry(table *table, table_entry *entry) {
     }
 }
 
-void table_resize(table *table) {
+void table_resize(wtable *table) {
     if (TABLE_MAX_CAPACITY - table->capacity < table->capacity)
         return;
     size_t backups_capacity = table->capacity;

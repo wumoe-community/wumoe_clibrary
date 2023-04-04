@@ -1,33 +1,33 @@
 #include <stdlib.h>
-#include "queue.h"
+#include "wqueue.h"
 
 typedef struct queue_node {
     void *value;
     struct queue_node *next;
 } queue_node;
 
-typedef struct queue {
+typedef struct wqueue {
     queue_node *head;
     size_t size;
 } queue;
 
-queue *new_queue() {
-    queue *new_queue = (queue *) malloc(sizeof(queue));
+wqueue *new_queue() {
+    wqueue *new_queue = (wqueue *) malloc(sizeof(wqueue));
     new_queue->head = NULL;
     new_queue->size = 0;
 }
 
-size_t queue_size(queue *queue) {
+size_t queue_size(wqueue *queue) {
     return queue->size;
 }
 
-void *queue_peek(queue *queue) {
+void *queue_peek(wqueue *queue) {
     if (queue->head == NULL)
         return NULL;
     return queue->head->value;
 }
 
-void *queue_pop(queue *queue) {
+void *queue_pop(wqueue *queue) {
     void *result = queue_peek(queue);
     if (result == NULL)
         return NULL;
@@ -38,7 +38,7 @@ void *queue_pop(queue *queue) {
     return result;
 }
 
-void queue_push(queue *queue, void *value) {
+void queue_push(wqueue *queue, void *value) {
     queue_node *new_node = (queue_node *) malloc(sizeof(queue_node));
     new_node->value = value;
     new_node->next = NULL;
@@ -53,7 +53,7 @@ void queue_push(queue *queue, void *value) {
     }
 }
 
-void queue_free(queue *queue) {
+void queue_free(wqueue *queue) {
     while (queue->size > 0)
         queue_pop(queue);
     free(queue);

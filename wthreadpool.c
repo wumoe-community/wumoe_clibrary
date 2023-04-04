@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <pthread.h>
-#include "threadpool.h"
+#include "wthreadpool.h"
 
 typedef struct thread_task {
     void (*function)(void *);
@@ -8,19 +8,19 @@ typedef struct thread_task {
     struct thread_task *next;
 } thread_task;
 
-typedef struct thread_pool {
+typedef struct wthread_pool {
     thread_task *head;
     size_t shutdown;
     pthread_mutex_t lock;
     pthread_cond_t notify;
     pthread_t *threads;
     size_t maxnum_thread;
-} thread_pool;
+} wthread_pool;
 
 static void *thread_pool_thread(void *pool);
 
-thread_pool *new_thread_pool(size_t maxnum_thread) {
-    thread_pool *new_pool = (thread_pool *) malloc(sizeof(thread_pool));
+wthread_pool *new_thread_pool(size_t maxnum_thread) {
+    wthread_pool *new_pool = (wthread_pool *) malloc(sizeof(wthread_pool));
     new_pool->maxnum_thread = maxnum_thread;
     new_pool->shutdown = 0;
     new_pool->head = NULL;
@@ -32,7 +32,7 @@ thread_pool *new_thread_pool(size_t maxnum_thread) {
     return new_pool;
 }
 
-void thread_pool_add(thread_pool *pool, void (*routine)(void *), void *argument) {
+void thread_pool_add(wthread_pool *pool, void (*routine)(void *), void *argument) {
     thread_task *task = (thread_task *) malloc(sizeof(thread_task));
     task->function = routine;
     task->argument = argument;
@@ -50,7 +50,7 @@ void thread_pool_add(thread_pool *pool, void (*routine)(void *), void *argument)
     pthread_cond_signal(&pool->notify);
 }
 
-void thread_pool_destroy(thread_pool *pool) {
+void thread_pool_destroy(wthread_pool *pool) {
     pool->shutdown = 1;
     pthread_mutex_lock(&pool->lock);
     pthread_cond_broadcast(&pool->notify);
@@ -70,7 +70,7 @@ void thread_pool_destroy(thread_pool *pool) {
 }
 
 static void *thread_pool_thread(void *pool) {
-    thread_pool *tmp = (thread_pool *) pool;
+    wthread_pool *tmp = (wthread_pool *) pool;
     thread_task *task;
     while (1) {
         pthread_mutex_lock(&tmp->lock);

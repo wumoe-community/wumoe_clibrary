@@ -1,33 +1,33 @@
 #include <stdlib.h>
-#include "stack.h"
+#include "wstack.h"
 
 typedef struct stack_node {
     void *value;
     struct stack_node *next;
 } stack_node;
 
-typedef struct stack {
+typedef struct wstack {
     stack_node *head;
     size_t size;
 } stack;
 
-stack *new_stack() {
-    stack *new_stack = (stack *) malloc(sizeof(stack));
+wstack *new_stack() {
+    wstack *new_stack = (wstack *) malloc(sizeof(wstack));
     new_stack->head = NULL;
     new_stack->size = 0;
 }
 
-size_t stack_size(stack *stack) {
+size_t stack_size(wstack *stack) {
     return stack->size;
 }
 
-void *stack_peek(stack *stack) {
+void *stack_peek(wstack *stack) {
     if (stack->head == NULL)
         return NULL;
     return stack->head->value;
 }
 
-void *stack_pop(stack *stack) {
+void *stack_pop(wstack *stack) {
     void *result = stack_peek(stack);
     if (result == NULL)
         return NULL;
@@ -38,7 +38,7 @@ void *stack_pop(stack *stack) {
     return result;
 }
 
-void stack_push(stack *stack, void *value) {
+void stack_push(wstack *stack, void *value) {
     stack_node *new_node = (stack_node *) malloc(sizeof(stack_node));
     new_node->value = value;
     new_node->next = NULL;
@@ -51,7 +51,7 @@ void stack_push(stack *stack, void *value) {
     stack->head = new_node;
 }
 
-void stack_free(stack *stack) {
+void stack_free(wstack *stack) {
     while (stack->size > 0)
         stack_pop(stack);
     free(stack);
