@@ -29,7 +29,7 @@ typedef struct wtable {
     avl_tree_node **avl_array;
     size_t capacity;
     size_t size;
-} table;
+} wtable;
 
 void table_push_entry(wtable *table, table_entry *entry);
 
