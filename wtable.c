@@ -23,6 +23,8 @@ typedef struct avl_tree_node {
     table_entry *entry;
     struct avl_tree_node *left;
     struct avl_tree_node *right;
+    size_t avl_keys_index;
+    size_t avl_values_index;
 } avl_tree_node;
 
 typedef struct wtable {
@@ -134,11 +136,9 @@ void *table_remove(wtable *table, char *key) {
     return result;
 }
 
-size_t table_keys_index;
-
 void table_keys_order(char **keys, avl_tree_node *node) {
     if(node != NULL) {
-        keys[table_keys_index++] = node->entry->key;
+        keys[node->avl_keys_index++] = node->entry->key;
         table_keys_order(keys, node->left);
         table_keys_order(keys, node->right);
     }
@@ -146,17 +146,16 @@ void table_keys_order(char **keys, avl_tree_node *node) {
 
 char **table_keys(wtable *table) {
     char **keys = (char **) malloc(sizeof(char *) * table->size);
-    table_keys_index = 0;
+    node->avl_keys_index = 0;
     for (size_t i = 0; i < table->capacity; ++i)
         table_keys_order(keys, table->avl_array[i]);
     return keys;
 }
 
-size_t table_values_index;
 
 void table_values_order(void **values, avl_tree_node *node) {
     if(node != NULL) {
-        values[table_values_index++] = node->entry->value;
+        values[node->avl_values_index++] = node->entry->value;
         table_values_order(values, node->left);
         table_values_order(values, node->right);
     }
@@ -164,7 +163,7 @@ void table_values_order(void **values, avl_tree_node *node) {
 
 void **table_values(wtable *table) {
     void **values = (void **) malloc(sizeof(void *) * table->size);
-    table_values_index = 0;
+    node->avl_values_index = 0;
     for (size_t i = 0; i < table->capacity; ++i)
         table_values_order(values, table->avl_array[i]);
     return values;
