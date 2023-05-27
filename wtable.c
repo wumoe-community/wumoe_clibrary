@@ -152,7 +152,6 @@ char **table_keys(wtable *table) {
     return keys;
 }
 
-
 void table_values_order(void **values, avl_tree_node *node) {
     if(node != NULL) {
         values[node->avl_values_index++] = node->entry->value;
